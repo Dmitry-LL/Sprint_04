@@ -6,23 +6,6 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     
-    
-    
-    private struct viewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
-    private struct QuizViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
-    private struct QuizResultsViewModel {
-        let title: String
-        let text: String
-        let buttonText: String
-    }
     private var answerResult: Bool!
     
     private struct QuizQuestion {
@@ -176,6 +159,22 @@ final class MovieQuizViewController: UIViewController {
         
         self.present(alert, animated: true, completion: nil)
         
+    }
+    
+    private struct viewModel {
+        let image: UIImage
+        let question: String
+        let questionNumber: String
+    }
+    private struct QuizViewModel {
+        let image: UIImage
+        let question: String
+        let questionNumber: String
+    }
+    private struct QuizResultsViewModel {
+        let title: String
+        let text: String
+        let buttonText: String
     }
     
 }
