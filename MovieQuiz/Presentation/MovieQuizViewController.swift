@@ -71,13 +71,19 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect { correctAnswers += 1 }
+        if isCorrect {
+            correctAnswers += 1
+        }
         
+        imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.green.cgColor : UIColor.red.cgColor
+
+        // Устанавливаем цвет рамки в зависимости от ответа
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         
+        // Убираем рамку через 1 секунду
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.imageView.layer.borderWidth = 0
+            self.imageView.layer.borderWidth = 0 // Сброс рамки
             self.showNextQuestionOrResults()
         }
     }
