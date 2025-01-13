@@ -45,7 +45,7 @@
                                             </label>
                                         </subviews>
                                     </stackView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="yNb-Ic-Mws" userLabel="Preview Image">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="yNb-Ic-Mws" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.5" width="374" height="561"/>
                                         <color key="backgroundColor" name="YP White"/>
                                         <constraints>
@@ -106,9 +106,6 @@
                                     <constraint firstAttribute="height" constant="60" id="oG3-YL-fwu"/>
                                 </constraints>
                             </stackView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="8xX-jh-TH6">
-                                <rect key="frame" x="197" y="438" width="20" height="20"/>
-                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -117,15 +114,12 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mSL-v2-7Er" secondAttribute="trailing" constant="20" id="BC0-Xk-Y3C"/>
                             <constraint firstItem="YVa-QP-0cp" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="HSi-gY-cOG"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="x2L-xO-fTa" secondAttribute="bottom" constant="80" id="cgQ-jF-Zhe"/>
-                            <constraint firstItem="8xX-jh-TH6" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="dpI-8t-HdJ"/>
-                            <constraint firstItem="8xX-jh-TH6" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mcR-rv-mwO"/>
                             <constraint firstItem="YVa-QP-0cp" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="nSq-QR-Afz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="YVa-QP-0cp" secondAttribute="bottom" id="oBM-cS-F1z"/>
                             <constraint firstItem="mSL-v2-7Er" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="uWt-gS-dcf"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIdicator" destination="8xX-jh-TH6" id="C4v-3U-hpc"/>
                         <outlet property="counterLabel" destination="al9-8u-tKv" id="pXr-93-RRY"/>
                         <outlet property="imageView" destination="yNb-Ic-Mws" id="Fi3-m8-y8r"/>
                         <outlet property="textLabel" destination="x2L-xO-fTa" id="ZfC-hc-EO9"/>
