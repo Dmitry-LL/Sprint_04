@@ -5,7 +5,7 @@
 //  Created by Кротов Дмитрий Александрович on 30.12.2024.
 //
 import Foundation
-final class StatisticService {
+final class StatisticService: StatisticServiceProtocol {
     private let storage: UserDefaults = .standard
 
     private enum Keys {
@@ -16,12 +16,8 @@ final class StatisticService {
     }
 
     var gamesCount: Int {
-        get {
-            storage.integer(forKey: Keys.gamesCount)
-        }
-        set {
-            storage.set(newValue, forKey: Keys.gamesCount)
-        }
+        get { storage.integer(forKey: Keys.gamesCount) }
+        set { storage.set(newValue, forKey: Keys.gamesCount) }
     }
 
     var bestGame: GameResult {
@@ -46,16 +42,13 @@ final class StatisticService {
     }
 
     func store(correct count: Int, total amount: Int) {
-        // Обновляем количество игр
         gamesCount += 1
 
-        // Обновляем правильные ответы и общее число вопросов
         let currentCorrect = storage.integer(forKey: Keys.correctAnswers)
         let currentTotal = storage.integer(forKey: Keys.totalQuestions)
         storage.set(currentCorrect + count, forKey: Keys.correctAnswers)
         storage.set(currentTotal + amount, forKey: Keys.totalQuestions)
 
-        // Проверяем и обновляем лучший результат
         let currentGame = GameResult(correct: count, total: amount, date: Date())
         if currentGame.isBetterThan(bestGame) {
             bestGame = currentGame
