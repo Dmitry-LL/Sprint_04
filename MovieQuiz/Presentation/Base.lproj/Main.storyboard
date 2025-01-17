@@ -45,7 +45,7 @@
                                             </label>
                                         </subviews>
                                     </stackView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="yNb-Ic-Mws" userLabel="Preview Image">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="yNb-Ic-Mws" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.5" width="374" height="561"/>
                                         <color key="backgroundColor" name="YP White"/>
                                         <constraints>
@@ -125,7 +125,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIdicator" destination="8xX-jh-TH6" id="C4v-3U-hpc"/>
+                        <outlet property="activityIndicator" destination="8xX-jh-TH6" id="33E-BI-OEx"/>
                         <outlet property="counterLabel" destination="al9-8u-tKv" id="pXr-93-RRY"/>
                         <outlet property="imageView" destination="yNb-Ic-Mws" id="Fi3-m8-y8r"/>
                         <outlet property="textLabel" destination="x2L-xO-fTa" id="ZfC-hc-EO9"/>

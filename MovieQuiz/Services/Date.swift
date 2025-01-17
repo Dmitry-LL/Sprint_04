@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Foundation
+
 extension Date {
     func toString(format: String = "dd.MM.yyyy HH:mm") -> String {
         let formatter = DateFormatter()
@@ -13,4 +15,3 @@ extension Date {
         return formatter.string(from: self)
     }
 }
-

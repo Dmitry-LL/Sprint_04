@@ -7,30 +7,26 @@
 
 import Foundation
 /// Отвечает за загрузку данных по URL
-struct NetworkClient {
-    enum NetworkError: Error {
-        case codeError
-    }
+enum NetworkError: Error {
+    case invalidURL
+    case dataLoadingFailed
+}
 
-    func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
-        let request = URLRequest(url: url)
-
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+final class NetworkClient {
+    func fetch(url: URL, completion: @escaping (Result<Data, Error>) -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error {
-                handler(.failure(error))
+                completion(.failure(error))
                 return
             }
-
-            if let response = response as? HTTPURLResponse,
-               response.statusCode < 200 || response.statusCode >= 300 {
-                handler(.failure(NetworkError.codeError))
+            
+            guard let data = data else {
+                completion(.failure(NetworkError.dataLoadingFailed))
                 return
             }
-
-            guard let data = data else { return }
-            handler(.success(data))
+            
+            completion(.success(data))
         }
-
         task.resume()
     }
 }

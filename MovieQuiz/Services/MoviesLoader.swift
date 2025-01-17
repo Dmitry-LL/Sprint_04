@@ -7,31 +7,31 @@
 
 import Foundation
 protocol MoviesLoading {
-    func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
+    func loadMovies(completion: @escaping (Result<MostPopularMovies, Error>) -> Void)
 }
 
-struct MoviesLoader: MoviesLoading {
+final class MoviesLoader: MoviesLoading {
     private let networkClient = NetworkClient()
-
-    private var mostPopularMoviesUrl: URL {
-        guard let url = URL(string: "https://tv-api.com/en/API/Top250Movies/k_kiwxbi4y") else {
-            preconditionFailure("Unable to construct mostPopularMoviesUrl")
+    private let apiUrl = "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf"
+    
+    func loadMovies(completion: @escaping (Result<MostPopularMovies, Error>) -> Void) {
+        guard let url = URL(string: apiUrl) else {
+            completion(.failure(NetworkError.invalidURL))
+            return
         }
-        return url
-    }
-
-    func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
-        networkClient.fetch(url: mostPopularMoviesUrl) { result in
+        
+        networkClient.fetch(url: url) { (result: Result<Data, Error>) in
             switch result {
             case .success(let data):
                 do {
-                    let mostPopularMovies = try JSONDecoder().decode(MostPopularMovies.self, from: data)
-                    handler(.success(mostPopularMovies))
+                    let decoder = JSONDecoder()
+                    let movies = try decoder.decode(MostPopularMovies.self, from: data)
+                    completion(.success(movies))
                 } catch {
-                    handler(.failure(error))
+                    completion(.failure(error))
                 }
             case .failure(let error):
-                handler(.failure(error))
+                completion(.failure(error))
             }
         }
     }
