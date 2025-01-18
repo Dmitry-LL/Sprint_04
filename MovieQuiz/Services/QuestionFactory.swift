@@ -1,23 +1,17 @@
-//
-//  QuestionFactory.swift
-//  MovieQuiz
-//
-//  Created by Кротов Дмитрий Александрович on 17.12.2024.
-//
-
 import Foundation
+
 class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
-    private let moviesLoader: MoviesLoading
+    private let moviesLoader: NetworkRouting
     private var movies: [MostPopularMovie] = []
     
-    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
+    init(moviesLoader: NetworkRouting, delegate: QuestionFactoryDelegate?) {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
     
     func loadData() {
-        moviesLoader.loadMovies { [weak self] result in
+        moviesLoader.loadMovies { [weak self] (result: Result<MostPopularMovies, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let mostPopularMovies):
@@ -29,8 +23,9 @@ class QuestionFactory: QuestionFactoryProtocol {
             }
         }
     }
+    
     func resetQuestions() {
-        movies.shuffle() // Перемешиваем список фильмов при перезапуске
+        movies.shuffle()
     }
     
     func requestNextQuestion() {
@@ -42,15 +37,12 @@ class QuestionFactory: QuestionFactoryProtocol {
         let text = "Рейтинг этого фильма больше чем 7?"
         let correctAnswer = rating > 7
         
-        // Загрузка изображения
         URLSession.shared.dataTask(with: movie.imageURL) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let data = data {
-                    // Создаем вопрос только после успешной загрузки данных изображения
                     let question = QuizQuestion(image: data, text: text, correctAnswer: correctAnswer)
                     self?.delegate?.didReceiveNextQuestion(question: question)
                 } else {
-                    // Обработка ошибки загрузки изображения
                     print("Failed to load image data: \(error?.localizedDescription ?? "Unknown error")")
                 }
             }
