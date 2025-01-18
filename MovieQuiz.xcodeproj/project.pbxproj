@@ -81,10 +81,10 @@
 			isa = PBXGroup;
 			children = (
 				033F0BC32D229D1D000EA0A6 /* StatisticService.swift */,
+				033F0BBF2D229B72000EA0A6 /* StatisticServiceProtocol.swift */,
 				033F0B872D119E26000EA0A6 /* QuestionFactory.swift */,
 				033F0B912D15A7BD000EA0A6 /* QuestionFactoryProtocol.swift */,
 				033F0B932D15B411000EA0A6 /* QuestionFactoryDelegate.swift */,
-				033F0BBF2D229B72000EA0A6 /* StatisticServiceProtocol.swift */,
 				033F0BC52D22AAB5000EA0A6 /* Date.swift */,
 				0387575E2D353F0D0088E75F /* NetworkClient.swift */,
 				038757622D353F8C0088E75F /* MoviesLoader.swift */,
