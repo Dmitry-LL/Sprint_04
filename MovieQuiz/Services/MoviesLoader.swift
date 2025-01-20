@@ -16,27 +16,24 @@ struct Movie: Decodable {
     let imDbRatingCount: String
 }
 
-final class MoviesLoader: NetworkRouting {
+final class MoviesLoader {
+    // MARK: - Properties
     private let networkClient: NetworkRouting
-    private let moviesURL = URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf")! // 
+    private let moviesURL = URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf")!
 
+    // MARK: - Init
     init(networkClient: NetworkRouting) {
         self.networkClient = networkClient
     }
 
-    // Реализация протокола NetworkRouting
-    func fetch(url: URL, completion handler: @escaping (Result<Data, Error>) -> Void) {
-        networkClient.fetch(url: url, completion: handler)
-    }
-
-    // Загрузка фильмов
-    func loadMovies(completion: @escaping (Result<MostPopularMovies, Error>) -> Void) {
+    // MARK: - Public Methods
+    func loadMovies(completion: @escaping (Result<MoviesResponse, Error>) -> Void) {
         networkClient.fetch(url: moviesURL) { result in
             switch result {
             case .success(let data):
                 do {
                     let decoder = JSONDecoder()
-                    let response = try decoder.decode(MostPopularMovies.self, from: data)
+                    let response = try decoder.decode(MoviesResponse.self, from: data)
                     completion(.success(response))
                 } catch {
                     completion(.failure(error))

@@ -7,7 +7,6 @@
 
 import Foundation
 protocol NetworkRouting {
-    func fetch(url: URL, completion handler: @escaping (Result<Data, Error>) -> Void)
-    func loadMovies(completion: @escaping (Result<MostPopularMovies, Error>) -> Void)
+    func fetch(url: URL, completion: @escaping (Result<Data, Error>) -> Void)
 }
 

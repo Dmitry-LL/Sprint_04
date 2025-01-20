@@ -2,20 +2,21 @@ import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
-    private let moviesLoader: NetworkRouting
-    private var movies: [MostPopularMovie] = []
+    private let moviesLoader: MoviesLoader
+    private var movies: [Movie] = [] // Список фильмов
     
-    init(moviesLoader: NetworkRouting, delegate: QuestionFactoryDelegate?) {
+    init(moviesLoader: MoviesLoader, delegate: QuestionFactoryDelegate?) {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
     
+    // Загрузка данных с сервера
     func loadData() {
-        moviesLoader.loadMovies { [weak self] (result: Result<MostPopularMovies, Error>) in
+        moviesLoader.loadMovies { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let mostPopularMovies):
-                    self?.movies = mostPopularMovies.items
+                case .success(let moviesResponse):
+                    self?.movies = moviesResponse.items
                     self?.delegate?.didLoadDataFromServer()
                 case .failure(let error):
                     self?.delegate?.didFailToLoadData(with: error)
@@ -24,26 +25,29 @@ class QuestionFactory: QuestionFactoryProtocol {
         }
     }
     
+    // Перемешивание вопросов (сброс состояния)
     func resetQuestions() {
         movies.shuffle()
     }
     
+    // Запрос следующего вопроса
     func requestNextQuestion() {
         guard !movies.isEmpty else { return }
         let index = Int.random(in: 0..<movies.count)
         let movie = movies[index]
         
-        let rating = Float(movie.rating) ?? 0
+        guard let imageURL = URL(string: movie.image) else { return }
         let text = "Рейтинг этого фильма больше чем 7?"
-        let correctAnswer = rating > 7
+        let correctAnswer = Float(movie.imDbRating) ?? 0 > 7
         
-        URLSession.shared.dataTask(with: movie.imageURL) { [weak self] data, response, error in
+        // Загрузка изображения и создание вопроса
+        URLSession.shared.dataTask(with: imageURL) { [weak self] data, _, error in
             DispatchQueue.main.async {
                 if let data = data {
                     let question = QuizQuestion(image: data, text: text, correctAnswer: correctAnswer)
                     self?.delegate?.didReceiveNextQuestion(question: question)
                 } else {
-                    print("Failed to load image data: \(error?.localizedDescription ?? "Unknown error")")
+                    print("Ошибка загрузки изображения: \(error?.localizedDescription ?? "Неизвестная ошибка")")
                 }
             }
         }.resume()
