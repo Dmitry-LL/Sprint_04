@@ -5,7 +5,12 @@
 //  Created by Кротов Дмитрий Александрович on 30.12.2024.
 //
 import Foundation
-final class StatisticService {
+final class StatisticService: StatisticServiceProtocol {
+    func getStatistics() -> (total: Int, correct: Int) {
+            // Реализация
+            return (0, 0)
+        }
+    
     private let storage: UserDefaults = .standard
 
     private enum Keys {

@@ -1,92 +1,55 @@
-//
-//  QuestionFactory.swift
-//  MovieQuiz
-//
-//  Created by Кротов Дмитрий Александрович on 17.12.2024.
-//
-
 import Foundation
-//class QuestionFactory: QuestionFactoryProtocol {
-    
-    //weak var delegate: QuestionFactoryDelegate?
-    //private let questions: [QuizQuestion] = [
-        //QuizQuestion(image: "The Godfather", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "The Dark Knight", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "Kill Bill", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "The Avengers", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "Deadpool", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "The Green Knight", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
-        //QuizQuestion(image: "Old", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
-        //QuizQuestion(image: "The Ice Age Adventures of Buck Wild", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
-    //    QuizQuestion(image: "Tesla", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
-  //      QuizQuestion(image: "Vivarium", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false)
-//    ]
-final class QuestionFactory: QuestionFactoryProtocol {
-    
-    private let moviesLoader: MoviesLoading
-      //  private weak var delegate: QuestionFactoryDelegate?
 
-        //init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
-          //  self.moviesLoader = moviesLoader
-            //self.delegate = delegate
-        //}
+class QuestionFactory: QuestionFactoryProtocol {
+    weak var delegate: QuestionFactoryDelegate?
+    private let moviesLoader: MoviesLoader
+    private var movies: [Movie] = [] // Список фильмов
     
-    private var movies: [MostPopularMovie] = []
-    
-    private let questions: [QuizQuestion]
-        private var usedIndices: Set<Int> = [] // Хранит индексы уже заданных вопросов
-        weak var delegate: QuestionFactoryDelegate?
-
-        init(questions: [QuizQuestion]) {
-            self.questions = questions
-        }
-
-    func requestNextQuestion() {
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            let index = (0..<self.movies.count).randomElement() ?? 0
-            
-            guard let movie = self.movies[safe: index] else { return }
-            
-            var imageData = Data()
-           
-            do {
-                imageData = try Data(contentsOf: movie.resizedImageURL)
-            } catch {
-                print("Failed to load image")
-            }
-            
-            let rating = Float(movie.rating) ?? 0
-            
-            let text = "Рейтинг этого фильма больше чем 7?"
-            let correctAnswer = rating > 7
-            
-            let question = QuizQuestion(image: imageData,
-                                         text: text,
-                                         correctAnswer: correctAnswer)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.delegate.didReceiveNextQuestion(question: question)
-            }
-        }
-    } 
-
-        func resetQuestions() {
-            usedIndices.removeAll() // Сбрасываем использованные индексы
-        }
-    func loadData() {
-           moviesLoader.loadMovies { [weak self] result in
-               guard let self = self else { return }
-               switch result {
-               case .success(let mostPopularMovies):
-                   self.movies = mostPopularMovies.items // сохраняем фильм в нашу новую переменную
-                   self.delegate?.didLoadDataFromServer() // сообщаем, что данные загрузились
-               case .failure(let error):
-                   self.delegate?.didFailToLoadData(with: error) // сообщаем об ошибке нашему MovieQuizViewController
-               }
-           }
-       }
-    
+    init(moviesLoader: MoviesLoader, delegate: QuestionFactoryDelegate?) {
+        self.moviesLoader = moviesLoader
+        self.delegate = delegate
     }
-
+    
+    // Загрузка данных с сервера
+    func loadData() {
+        moviesLoader.loadMovies { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let moviesResponse):
+                    self?.movies = moviesResponse.items
+                    self?.delegate?.didLoadDataFromServer()
+                case .failure(let error):
+                    self?.delegate?.didFailToLoadData(with: error)
+                }
+            }
+        }
+    }
+    
+    // Перемешивание вопросов (сброс состояния)
+    func resetQuestions() {
+        movies.shuffle()
+    }
+    
+    // Запрос следующего вопроса
+    func requestNextQuestion() {
+        guard !movies.isEmpty else { return }
+        let index = Int.random(in: 0..<movies.count)
+        let movie = movies[index]
+        
+        guard let imageURL = URL(string: movie.image) else { return }
+        let text = "Рейтинг этого фильма больше чем 7?"
+        let correctAnswer = Float(movie.imDbRating) ?? 0 > 7
+        
+        // Загрузка изображения и создание вопроса
+        URLSession.shared.dataTask(with: imageURL) { [weak self] data, _, error in
+            DispatchQueue.main.async {
+                if let data = data {
+                    let question = QuizQuestion(image: data, text: text, correctAnswer: correctAnswer)
+                    self?.delegate?.didReceiveNextQuestion(question: question)
+                } else {
+                    print("Ошибка загрузки изображения: \(error?.localizedDescription ?? "Неизвестная ошибка")")
+                }
+            }
+        }.resume()
+    }
+}

@@ -10,8 +10,19 @@ struct GameResult: Codable {
     let correct: Int
     let total: Int
     let date: Date
+}
 
-    func isBetterThan(_ another: GameResult) -> Bool {
-        correct > another.correct
+extension Date {
+    func toString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd.MM.yyyy HH:mm"
+        return formatter.string(from: self)
     }
 }
+extension GameResult {
+    func isBetterThan(_ other: GameResult) -> Bool {
+        return self.correct > other.correct ||
+               (self.correct == other.correct && self.total < other.total)
+    }
+}
+

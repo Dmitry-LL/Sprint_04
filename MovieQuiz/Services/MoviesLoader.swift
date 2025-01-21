@@ -1,40 +1,46 @@
-//
-//  MoviesLoader.swift
-//  MovieQuiz
-//
-//  Created by Кротов Дмитрий Александрович on 13.01.2025.
-//
-
 import Foundation
-protocol MoviesLoading {
-    func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
+
+struct MoviesResponse: Decodable {
+    let items: [Movie]
 }
-struct MoviesLoader: MoviesLoading {
-    // MARK: - NetworkClient
-    private let networkClient = NetworkClient()
-    
-    // MARK: - URL
-    private var mostPopularMoviesUrl: URL {
-        // Если мы не смогли преобразовать строку в URL, то приложение упадёт с ошибкой
-        guard let url = URL(string: "https://tv-api.com/en/API/Top250Movies/k_kiwxbi4y") else {
-            preconditionFailure("Unable to construct mostPopularMoviesUrl")
-        }
-        return url
+
+struct Movie: Decodable {
+    let id: String
+    let title: String
+    let year: String
+    let image: String
+    let rank: String
+    let rankUpDown: String
+    let crew: String
+    let imDbRating: String
+    let imDbRatingCount: String
+}
+
+final class MoviesLoader {
+    // MARK: - Properties
+    private let networkClient: NetworkRouting
+    private let moviesURL = URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf")!
+
+    // MARK: - Init
+    init(networkClient: NetworkRouting) {
+        self.networkClient = networkClient
     }
-    
-    func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
-        networkClient.fetch(url: mostPopularMoviesUrl) { result in
+
+    // MARK: - Public Methods
+    func loadMovies(completion: @escaping (Result<MoviesResponse, Error>) -> Void) {
+        networkClient.fetch(url: moviesURL) { result in
             switch result {
             case .success(let data):
                 do {
-                    let mostPopularMovies = try JSONDecoder().decode(MostPopularMovies.self, from: data)
-                    handler(.success(mostPopularMovies))
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(MoviesResponse.self, from: data)
+                    completion(.success(response))
                 } catch {
-                    handler(.failure(error))
+                    completion(.failure(error))
                 }
             case .failure(let error):
-                handler(.failure(error))
+                completion(.failure(error))
             }
         }
-    } 
+    }
 }

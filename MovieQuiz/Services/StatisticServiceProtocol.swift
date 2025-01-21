@@ -6,12 +6,13 @@
 //
 
 import Foundation
-protocol StatisticServiceProtocol {
+protocol StatisticServiceProtocol: Any {
+    func store(correct: Int, total: Int)
+    func getStatistics() -> (total: Int, correct: Int)
     var gamesCount: Int { get }
-    var bestGame: GameResult { get }
-    var totalAccuracy: Double { get }
-    
-    func store(correct count: Int, total amount: Int)
-}
+     var bestGame: GameResult { get }
+     var totalAccuracy: Double { get }
+ }
+
 
 
