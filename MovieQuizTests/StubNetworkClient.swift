@@ -7,11 +7,11 @@
 
 import Foundation
 struct StubNetworkClient: NetworkRouting {
-    enum TestError: Error { // тестовая ошибка
-    case test
+    enum TestError: Error {
+        case test
     }
     
-    let emulateError: Bool // этот параметр нужен, чтобы заглушка эмулировала либо ошибку сети, либо успешный ответ
+    let emulateError: Bool
     
     func fetch(url: URL, completion handler: @escaping (Result<Data, Error>) -> Void) {
         if emulateError {
@@ -53,23 +53,5 @@ struct StubNetworkClient: NetworkRouting {
             ]
           }
         """.data(using: .utf8) ?? Data()
-    }
-}
-extension StubNetworkClient {
-    func loadMovies(completion: @escaping (Result<MostPopularMovies, Error>) -> Void) {
-        let url = URL(string: "https://example.com/api/movies")! // Укажите ваш реальный URL
-        fetch(url: url) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let movies = try JSONDecoder().decode(MostPopularMovies.self, from: data)
-                    completion(.success(movies))
-                } catch {
-                    completion(.failure(error))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
     }
 }

@@ -12,19 +12,23 @@ final class MovieQuizViewController: UIViewController {
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
-            super.viewDidLoad()
-            configureImageView()
-            alertPresenter = AlertPresenter(viewController: self)
-            
-            // Передаем questionFactory
-            let networkClient = NetworkClient() // Создаем экземпляр NetworkClient
-            let moviesLoader = MoviesLoader(networkClient: networkClient) // Передаем его в MoviesLoader
-            let questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
-            
-            presenter = MovieQuizPresenter(view: self, questionFactory: questionFactory)
-            presenter.loadData()
-        }
+        super.viewDidLoad()
+        configureImageView()
+        alertPresenter = AlertPresenter(viewController: self)
+        let statisticService = StatisticService()
+        let networkClient = NetworkClient() // Создаем экземпляр NetworkClient
+        let moviesLoader = MoviesLoader(networkClient: networkClient) // Передаем его в MoviesLoader
+        let questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
         
+        presenter = MovieQuizPresenter(
+            view: self,
+            questionFactory: questionFactory,
+            statisticService: statisticService
+        )
+        
+        presenter.loadData()
+    }
+    
     
     // MARK: - Private Methods
     private func configureImageView() {
@@ -33,8 +37,10 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 2
         imageView.layer.borderColor = UIColor.clear.cgColor
+        
+        imageView.accessibilityIdentifier = "Poster"
     }
-
+    
     // MARK: - Actions
     
     @IBAction private func yesButtonClicked(_ sender: Any) {
@@ -50,12 +56,12 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
-
+    
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
-
+    
     func showNetworkError(message: String) {
         let model = AlertModel(
             title: "Ошибка",
@@ -65,17 +71,19 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
             }
         alertPresenter?.showAlert(model: model)
     }
-
+    
     func updateUI(with viewModel: QuizStepViewModel) {
         imageView.image = viewModel.image
         textLabel.text = viewModel.question
         counterLabel.text = viewModel.questionNumber
+        
+        counterLabel.accessibilityIdentifier = "Index"
     }
-
+    
     func showFinalResults(with alertModel: AlertModel) {
         alertPresenter?.showAlert(model: alertModel)
     }
-
+    
     func showAnswerResult(isCorrect: Bool) {
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor

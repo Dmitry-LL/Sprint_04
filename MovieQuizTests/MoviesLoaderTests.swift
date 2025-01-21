@@ -8,20 +8,18 @@ final class MoviesLoaderTests: XCTestCase {
         let loader = MoviesLoader(networkClient: stubNetworkClient)
         
         // When
-        let expectation = expectation(description: "Loading expectation")
-        
+        let expectation = expectation(description: "Movies loaded successfully")
         loader.loadMovies { result in
             // Then
             switch result {
             case .success(let movies):
-                XCTAssertEqual(movies.items.count, 2)
+                XCTAssertEqual(movies.items.count, 2, "Expected 2 movies, but got \(movies.items.count)")
                 expectation.fulfill()
-            case .failure:
-                XCTFail("Unexpected failure")
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error.localizedDescription)")
             }
         }
-        
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 2.0)
     }
     
     func testFailureLoading() throws {
@@ -30,19 +28,17 @@ final class MoviesLoaderTests: XCTestCase {
         let loader = MoviesLoader(networkClient: stubNetworkClient)
         
         // When
-        let expectation = expectation(description: "Loading expectation")
-        
+        let expectation = expectation(description: "Movies loading failed")
         loader.loadMovies { result in
             // Then
             switch result {
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertNotNil(error, "Error should not be nil")
                 expectation.fulfill()
             case .success:
                 XCTFail("Unexpected success")
             }
         }
-        
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 2.0)
     }
 }

@@ -3,12 +3,17 @@ import XCTest
 
 final class MovieQuizPresenterTests: XCTestCase {
     func testPresenterConvertModel() throws {
-        // Given
         let viewControllerMock = MovieQuizViewControllerMock()
-        let questionFactoryMock = QuestionFactoryMock() // Подключаем корректный мок
-        let sut = MovieQuizPresenter(view: viewControllerMock, questionFactory: questionFactoryMock)
-        
-        // When
+        let questionFactoryMock = QuestionFactoryMock()
+
+        let statisticServiceMock = StatisticService()
+
+        let sut = MovieQuizPresenter(
+            view: viewControllerMock,
+            questionFactory: questionFactoryMock,
+            statisticService: statisticServiceMock
+        )
+
         let emptyData = Data()
         let question = QuizQuestion(image: emptyData, text: "Question Text", correctAnswer: true)
         let viewModel = sut.convert(model: question)

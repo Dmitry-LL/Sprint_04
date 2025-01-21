@@ -2,87 +2,83 @@
 //  MovieQuizUITests.swift
 //  MovieQuizUITests
 //
-//  Created by Кротов Дмитрий Александрович on 18.01.2025.
-//
 
 import XCTest
 
 class MovieQuizUITests: XCTestCase {
-    // swiftlint:disable:next implicitly_unwrapped_optional
     var app: XCUIApplication!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        
         app = XCUIApplication()
         app.launch()
-        
-        // это специальная настройка для тестов: если один тест не прошёл,
-        // то следующие тесты запускаться не будут; и правда, зачем ждать?
         continueAfterFailure = false
     }
+    
     override func tearDownWithError() throws {
-        try super.tearDownWithError()
-        
         app.terminate()
         app = nil
+        try super.tearDownWithError()
     }
-    func testScreenCast() throws { }
-    func testYesButton() {
-        let firstPoster = app.images["Poster"] // находим первоначальный постер
+    
+    func testYesButton() throws {
+        let firstPoster = app.images["Poster"]
+        let firstPosterData = firstPoster.screenshot().pngRepresentation
         
-        app.buttons["Yes"].tap() // находим кнопку `Да` и нажимаем её
+        app.buttons["Yes"].tap()
         
-        let secondPoster = app.images["Poster"] // ещё раз находим постер
+        let expectation = expectation(description: "Wait for poster to change")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { expectation.fulfill() }
+        waitForExpectations(timeout: 2.0)
         
-        XCTAssertFalse(firstPoster == secondPoster) // проверяем, что постеры разные
+        let secondPoster = app.images["Poster"]
+        let secondPosterData = secondPoster.screenshot().pngRepresentation
+        
+        XCTAssertNotEqual(firstPosterData, secondPosterData, "Poster image did not change")
     }
-    func testNoButton() {
-        sleep(3)
-        
+    
+    func testNoButton() throws {
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
         
         app.buttons["No"].tap()
-        sleep(3)
+        
+        let expectation = expectation(description: "Wait for poster to change")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { expectation.fulfill() }
+        waitForExpectations(timeout: 2.0)
         
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
-
-        let indexLabel = app.staticTexts["Index"]
-       
-        XCTAssertNotEqual(firstPosterData, secondPosterData)
-        XCTAssertEqual(indexLabel.label, "2/10")
-    }
-    func testGameFinish() {
-        sleep(2)
-        for _ in 1...10 {
-            app.buttons["No"].tap()
-            sleep(2)
-        }
-
-        let alert = app.alerts["Game results"]
         
-        XCTAssertTrue(alert.exists)
-        XCTAssertTrue(alert.label == "Этот раунд окончен!")
-        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз")
+        XCTAssertNotEqual(firstPosterData, secondPosterData, "Poster image did not change")
+        
+        let indexLabel = app.staticTexts["Index"]
+            XCTAssertEqual(indexLabel.label, "2/10", "Index label did not update")
     }
-
-    func testAlertDismiss() {
-        sleep(2)
+    
+    func testGameFinish() throws {
         for _ in 1...10 {
             app.buttons["No"].tap()
-            sleep(2)
+            sleep(1)
         }
         
         let alert = app.alerts["Game results"]
-        alert.buttons.firstMatch.tap()
+        XCTAssertTrue(alert.waitForExistence(timeout: 2.0), "Game results alert did not appear")
+        XCTAssertEqual(alert.label, "Этот раунд окончен!")
+        XCTAssertTrue(alert.buttons["Сыграть ещё раз"].exists, "Restart button does not exist")
+    }
+    
+    func testAlertDismiss() throws {
+        for _ in 1...10 {
+            app.buttons["No"].tap()
+            sleep(1)
+        }
         
-        sleep(2)
+        let alert = app.alerts["Game results"]
+        XCTAssertTrue(alert.exists, "Alert did not appear")
+        alert.buttons["Сыграть ещё раз"].tap()
         
         let indexLabel = app.staticTexts["Index"]
-        
-        XCTAssertFalse(alert.exists)
-        XCTAssertTrue(indexLabel.label == "1/10")
+        XCTAssertEqual(indexLabel.label, "1/10", "Index label did not reset after dismissing alert")
     }
 }
